@@ -17,39 +17,43 @@ class _TestState extends State<Test> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: FutureBuilder(
-          future: fetchAndParseTest(widget.serverIPV4), 
-          builder: (context,snapshot){
-            if(snapshot.hasError){
-              return Column(
-                spacing: 10,
-                children: [
-                  Text(
-                    snapshot.error.toString(),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: FutureBuilder(
+            future: fetchAndParseTest(widget.serverIPV4), 
+            builder: (context,snapshot){
+              if(snapshot.hasError){
+                return Column(
+                  spacing: 10,
+                  children: [
+                    Text(
+                      snapshot.error.toString(),
+                    ),
+                    BigButton(
+                      icon: Icons.refresh, 
+                      text: "Reintentar", 
+                      onTap: (){
+                        setState(() {
+                          
+                        });
+                      },
+                    ),
+                  ],
+                );
+              }else if(snapshot.connectionState == ConnectionState.done){
+                return CoolTestDisplayer(
+                  fullTest: snapshot.data as Map<String,dynamic>,
+                );
+              }else{
+                return Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.brown),
                   ),
-                  BigButton(
-                    icon: Icons.refresh, 
-                    text: "Reintentar", 
-                    onTap: (){
-                      setState(() {
-                        
-                      });
-                    },
-                  ),
-                ],
-              );
-            }else if(snapshot.connectionState == ConnectionState.done){
-              return CoolTestDisplayer(
-                fullTest: snapshot.data as Map<String,dynamic>,
-              );
-            }else{
-              return CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Colors.brown),
-              );
-            }
-          },
+                );
+              }
+            },
+          ),
         ),
       ),
     );
@@ -73,7 +77,11 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
 
   //TODO: Make this function determine if this is the last item
   bool isLastItem(){
-    return false;
+    return ((widget.fullTest["items"] as List).length - 1) == itemIndex;
+  }
+
+  Map<String,dynamic> fetchCorrectItem(){
+    return widget.fullTest["items"][itemIndex];
   }
 
   @override
@@ -81,29 +89,21 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
     return Column(
       spacing: 10,
       children: [
-        isLastItem() ? Column(
-          children: [
-            Text(
-              "¿Terminaste?",
-            ),
-            Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 40,
-            ),
-          ],
-        ) : ItemDisplayer(
-
+        ItemDisplayer(
+          item: fetchCorrectItem(),
         ),
-        itemIndex == 0 ? SizedBox() : Row(
+        Row(
+          spacing: 10,
           children: [
-            Expanded(
+            itemIndex == 0 ? SizedBox() : Expanded(
               child: BigButton(
                 icon: Icons.chevron_left, 
                 text: "Anterior", 
                 onTap: (){
-                  //TODO: Previous item
-
+                  //Previous item
+                  setState(() {
+                    itemIndex--;
+                  });
                 },
               ),
             ),
@@ -112,22 +112,22 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
                 icon: Icons.chevron_right, 
                 text: "Próximo",
                 onTap: (){
-                  //TODO: Next item
-                  
+                  //Next item
+                  setState(() {
+                    itemIndex++;
+                  });
                 },
               ),
             ),
           ],
         ),
-        !isLastItem() ? SizedBox() : Expanded(
-          child: BigButton(
-            icon: Icons.chevron_right, 
-            text: "Someter",
-            onTap: (){
-              //TODO: Submit test
-              
-            },
-          ),
+        !isLastItem() ? SizedBox() : BigButton(
+          icon: Icons.done, 
+          text: "Someter",
+          onTap: (){
+            //TODO: Submit test
+            
+          },
         ),
       ],
     );
@@ -135,8 +135,11 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
 }
 //TODO: Displays item, options, allows selection of options and updates the answers
 class ItemDisplayer extends StatelessWidget {
-  const ItemDisplayer({super.key});
-
+  const ItemDisplayer({
+    super.key,
+    required this.item,
+  });
+  final Map<String,dynamic> item;
   @override
   Widget build(BuildContext context) {
     return const Placeholder();

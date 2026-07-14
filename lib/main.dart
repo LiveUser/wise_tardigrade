@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
     MobileScannerController mobileScannerController = MobileScannerController();
     
     return Scaffold(
-      body: Expanded(
+      body: SafeArea(
         child: MobileScanner(
           controller: mobileScannerController,
           onDetect: (barcode)async{

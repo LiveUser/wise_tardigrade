@@ -23,12 +23,15 @@ class MyApp extends StatelessWidget {
 }
 
 class HomePage extends StatelessWidget {
-  HomePage({super.key});
-
-  MobileScannerController mobileScannerController = MobileScannerController();
+  const HomePage({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+
+    MobileScannerController mobileScannerController = MobileScannerController();
+    
     return Scaffold(
       body: Expanded(
         child: MobileScanner(

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:wise_tardigrade/funcitions.dart';
 import 'package:wise_tardigrade/widgets.dart';
@@ -89,8 +91,10 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
     return Column(
       spacing: 10,
       children: [
-        ItemDisplayer(
-          item: fetchCorrectItem(),
+        Expanded(
+          child: ItemDisplayer(
+            item: fetchCorrectItem(),
+          ),
         ),
         Row(
           spacing: 10,
@@ -134,14 +138,117 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
   }
 }
 //TODO: Displays item, options, allows selection of options and updates the answers
-class ItemDisplayer extends StatelessWidget {
+class ItemDisplayer extends StatefulWidget {
   const ItemDisplayer({
     super.key,
     required this.item,
   });
   final Map<String,dynamic> item;
+
+  @override
+  State<ItemDisplayer> createState() => _ItemDisplayerState();
+}
+
+class _ItemDisplayerState extends State<ItemDisplayer> {
+
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Column(
+      children: [
+        Text(
+          widget.item["question"],
+        ),
+        Expanded(
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: widget.item["type"] == "text" ? 1 : 2,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
+            ), 
+            itemCount: (widget.item["options"] as List).length,
+            shrinkWrap: true,
+            itemBuilder: (context, index){
+              if(widget.item["type"] == "text"){
+                return TextOption(
+                  index: index,
+                  option: widget.item["options"][index],
+                );
+              }else{
+                return ImageOption(
+                  index: index,
+                  option: widget.item["options"][index],
+                );
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+class TextOption extends StatefulWidget {
+  const TextOption({
+    super.key,
+    required this.index,
+    required this.option,
+  });
+  final int index;
+  final String option;
+
+  @override
+  State<TextOption> createState() => _TextOptionState();
+}
+
+class _TextOptionState extends State<TextOption> {
+  bool selected = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        setState(() {
+          selected = !selected;
+        });
+      },
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: selected ? Colors.green : Colors.white,
+          border: Border.all(),
+        ),
+        child: Row(
+          spacing: 10,
+          children: [
+            selected ? Icon(
+              Icons.check_circle,
+              color: selected ? Colors.white : Colors.black,
+            ) : SizedBox(),
+            Text(
+              widget.option,
+              style: TextStyle(
+                color: selected ? Colors.white : Colors.black,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class ImageOption extends StatelessWidget {
+  const ImageOption({
+    super.key,
+    required this.index,
+    required this.option,
+  });
+  final int index;
+  final Uint8List option;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.memory(
+      option,
+    );
   }
 }

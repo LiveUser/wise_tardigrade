@@ -33,23 +33,21 @@ class HomePage extends StatelessWidget {
     MobileScannerController mobileScannerController = MobileScannerController();
     
     return Scaffold(
-      body: SafeArea(
-        child: MobileScanner(
-          controller: mobileScannerController,
-          onDetect: (barcode)async{
-            InternetAddress? internetAddress = InternetAddress.tryParse(barcode.barcodes.first.rawValue ?? "");
-            if(internetAddress != null && internetAddress.type == InternetAddressType.IPv4){
-              await mobileScannerController.stop();
-              await Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => Test(
-                    serverIPV4: internetAddress.address,
-                  )
-                ),
-              );
-              await mobileScannerController.start();
-            }
-          },
-        ),
+      body: MobileScanner(
+        controller: mobileScannerController,
+        onDetect: (barcode)async{
+          InternetAddress? internetAddress = InternetAddress.tryParse(barcode.barcodes.first.rawValue ?? "");
+          if(internetAddress != null && internetAddress.type == InternetAddressType.IPv4){
+            await mobileScannerController.stop();
+            await Navigator.push(context, MaterialPageRoute(
+                builder: (context) => Test(
+                  serverIPV4: internetAddress.address,
+                )
+              ),
+            );
+            await mobileScannerController.start();
+          }
+        },
       ),
     );
   }

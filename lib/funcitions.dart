@@ -15,7 +15,7 @@ Future<Map<String,dynamic>> fetchAndParseTest(String ipv4)async{
     body: BsonCodec.serialize(body).byteList,
   );
   Map<String,dynamic> parsedResponse = BsonCodec.deserialize(BsonBinary.from(response.bodyBytes));
-  print("Response recieved---------------------------------------------");
-  print(parsedResponse);
+  //print("Response recieved---------------------------------------------");
+  //print(parsedResponse);
   return parsedResponse["data"];
 }

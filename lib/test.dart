@@ -178,7 +178,7 @@ class _ItemDisplayerState extends State<ItemDisplayer> {
         Expanded(
           child: GridView.builder(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: widget.item["type"] == "text" ? 1 : 2,
+              crossAxisCount: 1,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
               childAspectRatio: widget.item["type"] == "text" ? (5/1) : 1,
@@ -194,8 +194,9 @@ class _ItemDisplayerState extends State<ItemDisplayer> {
                 );
               }else{
                 return ImageOption(
-                  index: index,
-                  option: widget.item["options"][index],
+                  itemIndex: widget.itemIndex,
+                  optionIndex: index,
+                  option: Uint8List.fromList(List<int>.from(widget.item["options"][index])),
                 );
               }
             },
@@ -268,20 +269,68 @@ class _TextOptionState extends State<TextOption> {
     );
   }
 }
-//TODO: Make behaviour similar to TextOption
-class ImageOption extends StatelessWidget {
+class ImageOption extends StatefulWidget {
   const ImageOption({
     super.key,
-    required this.index,
+    required this.itemIndex,
+    required this.optionIndex,
     required this.option,
   });
-  final int index;
+  final int itemIndex;
+  final int optionIndex;
   final Uint8List option;
 
   @override
+  State<ImageOption> createState() => _ImageOptionState();
+}
+
+class _ImageOptionState extends State<ImageOption> {
+
+  bool isSelected(){
+    return (answers[widget.itemIndex.toString()] as List).contains(widget.optionIndex);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Image.memory(
-      option,
+    return GestureDetector(
+      onTap: (){
+        //Invert selection value
+        if(isSelected()){
+          int indexOfOption = (answers[widget.itemIndex.toString()] as List).indexOf(widget.optionIndex);
+          (answers[widget.itemIndex.toString()] as List).removeAt(indexOfOption);
+        }else{
+          (answers[widget.itemIndex.toString()] as List).add(widget.optionIndex);
+        }
+        setState(() {
+          
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          border: isSelected() ? Border.all(
+            color: Colors.green,
+            width: 4,
+          ) : null,
+        ),
+        child: Stack(
+          alignment: AlignmentGeometry.bottomEnd,
+          children: [
+            Center(
+              child: Image.memory(
+                widget.option,
+              ),
+            ),
+            isSelected() ? Padding(
+              padding: const EdgeInsets.all(10),
+              child: Icon(
+                Icons.check_circle,
+                color: Colors.green,
+                size: 40,
+              ),
+            ) : SizedBox(),
+          ],
+        ),
+      ),
     );
   }
 }

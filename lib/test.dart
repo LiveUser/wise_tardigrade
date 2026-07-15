@@ -1,8 +1,9 @@
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:wise_tardigrade/funcitions.dart';
 import 'package:wise_tardigrade/widgets.dart';
+
+Map<String,dynamic> answers = {};
 
 class Test extends StatefulWidget {
   const Test({
@@ -75,9 +76,8 @@ class CoolTestDisplayer extends StatefulWidget {
 class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
 
   int itemIndex = 0;
-  Map<String,dynamic> answers = {};
 
-  //TODO: Make this function determine if this is the last item
+  //Make this function determine if this is the last item
   bool isLastItem(){
     return ((widget.fullTest["items"] as List).length - 1) == itemIndex;
   }
@@ -87,12 +87,23 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
   }
 
   @override
+  void initState(){
+    super.initState();
+    for(int i = 0; i < widget.fullTest["items"].length; i++){
+      answers.addAll({
+        i.toString(): [],
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       spacing: 10,
       children: [
         Expanded(
           child: ItemDisplayer(
+            itemIndex: itemIndex,
             item: fetchCorrectItem(),
           ),
         ),
@@ -137,12 +148,14 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
     );
   }
 }
-//TODO: Displays item, options, allows selection of options and updates the answers
+//Displays item, options, allows selection of options and updates the answers
 class ItemDisplayer extends StatefulWidget {
   const ItemDisplayer({
     super.key,
+    required this.itemIndex,
     required this.item,
   });
+  final int itemIndex;
   final Map<String,dynamic> item;
 
   @override
@@ -154,9 +167,13 @@ class _ItemDisplayerState extends State<ItemDisplayer> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      spacing: 10,
       children: [
         Text(
           widget.item["question"],
+          style: TextStyle(
+            fontSize: 20,
+          ),
         ),
         Expanded(
           child: GridView.builder(
@@ -164,13 +181,15 @@ class _ItemDisplayerState extends State<ItemDisplayer> {
               crossAxisCount: widget.item["type"] == "text" ? 1 : 2,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
+              childAspectRatio: widget.item["type"] == "text" ? (5/1) : 1,
             ), 
             itemCount: (widget.item["options"] as List).length,
             shrinkWrap: true,
             itemBuilder: (context, index){
               if(widget.item["type"] == "text"){
                 return TextOption(
-                  index: index,
+                  itemIndex: widget.itemIndex,
+                  optionIndex: index,
                   option: widget.item["options"][index],
                 );
               }else{
@@ -189,10 +208,12 @@ class _ItemDisplayerState extends State<ItemDisplayer> {
 class TextOption extends StatefulWidget {
   const TextOption({
     super.key,
-    required this.index,
+    required this.itemIndex,
+    required this.optionIndex,
     required this.option,
   });
-  final int index;
+  final int itemIndex;
+  final int optionIndex;
   final String option;
 
   @override
@@ -200,34 +221,45 @@ class TextOption extends StatefulWidget {
 }
 
 class _TextOptionState extends State<TextOption> {
-  bool selected = false;
+
+  bool isSelected(){
+    return (answers[widget.itemIndex.toString()] as List).contains(widget.optionIndex);
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
+        //Invert selection value
+        if(isSelected()){
+          int indexOfOption = (answers[widget.itemIndex.toString()] as List).indexOf(widget.optionIndex);
+          (answers[widget.itemIndex.toString()] as List).removeAt(indexOfOption);
+        }else{
+          (answers[widget.itemIndex.toString()] as List).add(widget.optionIndex);
+        }
         setState(() {
-          selected = !selected;
+          
         });
       },
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: selected ? Colors.green : Colors.white,
+          color: isSelected() ? Colors.green : Colors.white,
           border: Border.all(),
         ),
         child: Row(
           spacing: 10,
           children: [
-            selected ? Icon(
+            isSelected() ? Icon(
               Icons.check_circle,
-              color: selected ? Colors.white : Colors.black,
+              color: isSelected() ? Colors.white : Colors.black,
             ) : SizedBox(),
             Text(
               widget.option,
               style: TextStyle(
-                color: selected ? Colors.white : Colors.black,
+                color: isSelected() ? Colors.white : Colors.black,
+                fontSize: 15,
               ),
             ),
           ],
@@ -236,6 +268,7 @@ class _TextOptionState extends State<TextOption> {
     );
   }
 }
+//TODO: Make behaviour similar to TextOption
 class ImageOption extends StatelessWidget {
   const ImageOption({
     super.key,

@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:wise_tardigrade/funcitions.dart';
+import 'package:wise_tardigrade/submission_screen.dart';
 import 'package:wise_tardigrade/widgets.dart';
+import 'package:quickie/quickie.dart';
 
 Map<String,dynamic> answers = {};
 
@@ -46,6 +50,7 @@ class _TestState extends State<Test> {
                 );
               }else if(snapshot.connectionState == ConnectionState.done){
                 return CoolTestDisplayer(
+                  serverIPV4: widget.serverIPV4,
                   fullTest: snapshot.data as Map<String,dynamic>,
                 );
               }else{
@@ -65,10 +70,11 @@ class _TestState extends State<Test> {
 class CoolTestDisplayer extends StatefulWidget {
   const CoolTestDisplayer({
     super.key,
+    required this.serverIPV4,
     required this.fullTest,
   });
   final Map<String,dynamic> fullTest;
-
+  final String serverIPV4;
   @override
   State<CoolTestDisplayer> createState() => _CoolTestDisplayerState();
 }
@@ -76,6 +82,7 @@ class CoolTestDisplayer extends StatefulWidget {
 class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
 
   int itemIndex = 0;
+  TextEditingController fullName = TextEditingController();
 
   //Make this function determine if this is the last item
   bool isLastItem(){
@@ -136,12 +143,60 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
             ),
           ],
         ),
+        !isLastItem() ? SizedBox() : TextField(
+          controller: fullName,
+          decoration: InputDecoration(
+            label: Text(
+              "Su nombre Completo",
+            ),
+          ),
+        ),
         !isLastItem() ? SizedBox() : BigButton(
           icon: Icons.done, 
           text: "Someter",
-          onTap: (){
-            //TODO: Submit test
-            
+          onTap: ()async{
+            //Submit test
+            bool shouldSubmit = await quickConfirm(
+              context: context,
+              title: Text("¿Deseas someter el exámen?"),
+              backgroundColor: Colors.brown,
+              cancelButton: Container(
+                padding: EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Text(
+                  "cancelar",
+                ),
+              ),
+              confirmButton: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.brown,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Text(
+                  "Someter prueba",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            );
+            if(shouldSubmit && fullName.text.isNotEmpty){
+              //Inject full name to the results
+              answers.addAll({
+                "fullName": fullName.text,
+              });
+              //Submit test results through http to graphene_server
+              Navigator.push(context, MaterialPageRoute(
+                builder: (context) => SubmissionScreen(
+                  serverIPV4: widget.serverIPV4, 
+                  answers: answers,
+                ),
+              ));
+            }
           },
         ),
       ],

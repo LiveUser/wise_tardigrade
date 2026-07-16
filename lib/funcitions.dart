@@ -19,3 +19,20 @@ Future<Map<String,dynamic>> fetchAndParseTest(String ipv4)async{
   //print(parsedResponse);
   return parsedResponse["data"];
 }
+Future<void> submitTest(String ipv4, Map<String,dynamic> answers)async{
+  Uri uri = Uri.parse("http://$ipv4:8080/graphene");
+  Map<String,dynamic> body = {
+    "variables": {
+      "answers": answers,
+    },
+    "mutation": "submitTest",
+  };
+  Response response = await post(
+    uri,
+    body: BsonCodec.serialize(body).byteList,
+  );
+  Map<String,dynamic> parsedResponse = BsonCodec.deserialize(BsonBinary.from(response.bodyBytes));
+  if(parsedResponse["error"] != null){
+    throw "Error sometiendo la prueba.";
+  }
+}

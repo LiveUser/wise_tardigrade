@@ -31,13 +31,15 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
 
     MobileScannerController mobileScannerController = MobileScannerController();
-    
+    bool alreadyScanned = false;
+
     return Scaffold(
       body: MobileScanner(
         controller: mobileScannerController,
         onDetect: (barcode)async{
           InternetAddress? internetAddress = InternetAddress.tryParse(barcode.barcodes.first.rawValue ?? "");
-          if(internetAddress != null && internetAddress.type == InternetAddressType.IPv4){
+          if(internetAddress != null && internetAddress.type == InternetAddressType.IPv4 && alreadyScanned == false){
+            alreadyScanned = true;
             await mobileScannerController.stop();
             await Navigator.push(context, MaterialPageRoute(
                 builder: (context) => Test(
@@ -46,6 +48,7 @@ class HomePage extends StatelessWidget {
               ),
             );
             await mobileScannerController.start();
+            alreadyScanned = false;
           }
         },
       ),

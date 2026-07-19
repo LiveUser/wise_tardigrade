@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required to access the camera hardware for scanning -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Optional but recommended: Tells the Google Play Store that your app requires a camera to function -->
+    <uses-feature android:name="android.hardware.camera" android:required="true" />
     <application
         android:label="wise_tardigrade"
         android:name="${applicationName}"

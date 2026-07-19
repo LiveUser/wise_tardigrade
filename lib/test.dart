@@ -83,10 +83,11 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
 
   int itemIndex = 0;
   TextEditingController fullName = TextEditingController();
+  FocusNode focusNode = FocusNode();
 
   //Make this function determine if this is the last item
   bool isLastItem(){
-    return ((widget.fullTest["items"] as List).length - 1) == itemIndex;
+    return (widget.fullTest["items"] as List).length == itemIndex;
   }
 
   Map<String,dynamic> fetchCorrectItem(){
@@ -108,7 +109,16 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
     return Column(
       spacing: 10,
       children: [
-        Expanded(
+        !isLastItem() ? SizedBox() : TextField(
+          controller: fullName,
+          focusNode: focusNode,
+          decoration: InputDecoration(
+            label: Text(
+              "Su nombre Completo",
+            ),
+          ),
+        ),
+        isLastItem() ? SizedBox() : Expanded(
           child: ItemDisplayer(
             itemIndex: itemIndex,
             item: fetchCorrectItem(),
@@ -142,14 +152,6 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
               ),
             ),
           ],
-        ),
-        !isLastItem() ? SizedBox() : TextField(
-          controller: fullName,
-          decoration: InputDecoration(
-            label: Text(
-              "Su nombre Completo",
-            ),
-          ),
         ),
         !isLastItem() ? SizedBox() : BigButton(
           icon: Icons.done, 
@@ -196,6 +198,14 @@ class _CoolTestDisplayerState extends State<CoolTestDisplayer> {
                   answers: answers,
                 ),
               ));
+            }else{
+              await quickAlert(
+                context: context, 
+                alertMessage: Text(
+                  "Favor de escribir su nombre completo antes de presionar someter.",
+                ),
+              );
+              focusNode.requestFocus();
             }
           },
         ),

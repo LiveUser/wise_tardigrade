@@ -1,5 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:bson/bson.dart';
+
+Map<String,dynamic> parseTest(Uint8List bytes){
+  return BsonCodec.deserialize(BsonBinary.from(bytes));
+}
 
 Future<Map<String,dynamic>> fetchAndParseTest(String ipv4)async{
   //print("Sending Request to $ipv4----------------------------------------------");
@@ -14,7 +19,7 @@ Future<Map<String,dynamic>> fetchAndParseTest(String ipv4)async{
     uri,
     body: BsonCodec.serialize(body).byteList,
   );
-  Map<String,dynamic> parsedResponse = BsonCodec.deserialize(BsonBinary.from(response.bodyBytes));
+  Map<String,dynamic> parsedResponse = await compute(parseTest, response.bodyBytes);
   //print("Response recieved---------------------------------------------");
   //print(parsedResponse);
   return parsedResponse["data"];

@@ -1,17 +1,13 @@
 # wise_tardigrade
 
-A new Flutter project.
+Open Source Local network(no internet required) test administering system.
 
-## Getting Started
+## Note
+This is the mobile app for taking tests made using wise_tardigrade_desktop
 
-This project is a starting point for a Flutter application.
+## How to use
+Just install and open the app, scan the qr code from the examiner's device and select the responses.
+![wise tardigrade screenshot](./documentation/images/wise-tardigrade.jpg)
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## For the desktop version
+[https://github.com/LiveUser/wise_tardigrade_desktop/releases](https://github.com/LiveUser/wise_tardigrade_desktop/releases)
